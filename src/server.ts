@@ -12,6 +12,7 @@ import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve as pathResolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as path from 'path';
 import { readFileSync } from 'node:fs';
 
@@ -339,6 +340,14 @@ export class ClaudeCodeServer {
   }
 }
 
-// Create and run the server if this is the main module
-const server = new ClaudeCodeServer();
-server.run().catch(console.error);
+export async function main(): Promise<void> {
+  const server = new ClaudeCodeServer();
+  await server.run();
+}
+
+const isMainModule = process.argv[1] !== undefined
+  && pathResolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isMainModule) {
+  main().catch(console.error);
+}
